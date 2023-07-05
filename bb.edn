@@ -1,0 +1,12 @@
+{:tasks
+ {test
+  {:task (shell "./dragonruby mal --test mal/test/test.rb")}
+
+  test-step
+  {:task (shell (str "./dragonruby mal --test mal/test/cases/"                 (first *command-line-args*) ".rb"))}
+  
+  repl
+  {:task (shell "./dragonruby mal --eval mal/mal.rb --no-tick")}
+  
+  generate-step-tests
+  {:task (shell "./dragonruby mal --no-tick --eval mal/test/cases/generate_case.rb --step" (first *command-line-args*))}}}
