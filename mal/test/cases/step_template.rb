@@ -8,14 +8,29 @@ require "mal/test/cases/parse_cases.rb"
 
 def test_mal_cases args, assert
   cases = parse_test_cases "<step>"
-  cases.each do |input, expected|
-    result = (REP input)
-    
+
+  cases[:success].each do |input, expected|
     print "test input: " + input + "\n"
-    print "    output: " + result + "\n"
     print "  expected: " + expected + "\n"
+    result = (REP input)
+    print "    output: " + result + "\n"
     print "\n"
+    
     assert.equal! result, expected
   end
-end
 
+  cases[:error].each do |input, expected|
+    print "    test input: " + input + "\n"
+    print "expected error: " + expected.to_s + "\n"
+
+    result = (REP input)
+    print "  actual error: " + result + "\n"
+    print "\n"
+
+    success = false
+    expected.each do |e|
+      success = success || (result.include? e)
+    end
+    assert.true! success
+  end
+end

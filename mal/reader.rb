@@ -62,9 +62,10 @@ module Mal
       elsif c == "\""
         start = pos
         
-        pos += 1 if (pos + 1 < s.size)
+        pos += 1
         pos += 1 while (pos + 1 < s.size) &&
                        (s[pos] != "\"" || s[pos - 1] == "\\")
+
         pos += 1
         
         tokens << s[start...pos]
@@ -108,7 +109,6 @@ module Mal
     when :AT
       reader.next
       List.new [:deref, (read_form reader)]
-
     when :OPEN_PAREN
       read_list reader, List, :CLOSE_PAREN
     when :OPEN_SQUARE
@@ -125,9 +125,15 @@ module Mal
 
     reader.next
     
-    while (s = read_form reader) &&
+    while (reader.peek) &&
+          (s = read_form reader) &&
           (s != close) do
+      
       ast << s
+    end
+
+    if s != close
+        raise "expected '" + close.to_s + "', got EOF"
     end
     
     ast
@@ -154,7 +160,23 @@ module Mal
   end
 
   def self.parse_str s
+    ok = (s.end_with? "\"") && (s.length > 1)
+    
     s = s[1...-1]
+
+    suffix = ""
+    s.reverse.each_char do |c|
+      if c == "\\"
+       suffix += c
+      else
+        break
+      end
+    end
+
+    ok = ok && suffix.length.even?
+
+    raise "expected '\"', got EOF" unless ok
+    
     s.gsub! "\\\"", "\""
     s.gsub! "\\n", "\n"
     s.gsub! "\\t", "\t"

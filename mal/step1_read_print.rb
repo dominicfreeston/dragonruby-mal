@@ -1,5 +1,5 @@
 def debug_log i
-  print i.to_s + "\n"
+  # print i.to_s + "\n"
 end
 
 def READ i
@@ -17,7 +17,11 @@ def PRINT i
 end
 
 def REP i
-  (PRINT (EVAL (READ i)))
+  begin
+    (PRINT (EVAL (READ i)))
+  rescue Exception => e
+    "* Error: #{e} *"
+  end
 end
 
 def run_repl
