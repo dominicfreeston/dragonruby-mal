@@ -3,14 +3,14 @@ require "mal/printer.rb"
 require "mal/types.rb"
 require "mal/env.rb"
 
-require "mal/<step>.rb"
+require "mal/step3_env.rb"
 
 require "mal/test/cases/parse_cases.rb"
 
 def test_mal_cases args, assert
   repl = Mal::Repl.new
   
-  cases = parse_test_cases "<step>"
+  cases = parse_test_cases "step3_env"
 
   cases[:success].each do |(input, expected)|
     print "test input: " + input.to_s + "\n"
