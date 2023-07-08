@@ -58,10 +58,9 @@ module Mal
     def REP i 
       begin
         (PRINT (EVAL (READ i), @repl_env))
-
         
       rescue Exception => e
-        "* Error: #{e} *"
+        "* Mal Error: #{e} *"
       end
     end
     
