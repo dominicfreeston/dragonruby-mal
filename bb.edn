@@ -3,11 +3,29 @@
   {:task (shell "./dragonruby mal --test mal/test/test.rb")}
 
   test-step
-  {:task (shell (str "./dragonruby mal --test mal/test/cases/"                 (first *command-line-args*) ".rb"))}
+  {:depends [-get-steps]
+   :task (shell (str "./dragonruby mal --test mal/test/cases/"
+                     (nth -get-steps (parse-long (first *command-line-args*))) ".rb"))}
   
   repl
   {:task (shell "./dragonruby mal --eval mal/mal.rb --no-tick")}
   
   generate-step-tests
-  {:task (doseq [step ["step0_repl" "step1_read_print" "step2_eval" "step3_env"]]
-           (shell "./dragonruby mal --no-tick --eval mal/test/cases/generate_case.rb --step" step))}}}
+  {:depends [-get-steps]
+   :task (doseq [step -get-steps]
+           (shell "./dragonruby mal --no-tick --eval mal/test/cases/generate_case.rb --step" step))}
+
+  list-steps {:depends [-get-steps]
+              :task (println -get-steps)}
+  
+  -get-steps
+  {:requires ([babashka.fs :as fs])
+   :task (->> (fs/list-dir "mal")
+              (map (fn [f]
+                     (->> f
+                         fs/file-name
+                         (re-matches (re-pattern "(step.*).rb"))
+                         second)))
+              (remove nil?)
+              sort)}
+  }}
