@@ -7,8 +7,7 @@ def parse_test_cases step
   
   lines.each do |line|
     line = line.trim
-    if line.start_with? ";;"
-      input = []
+    if line.empty? || line.start_with?(";;")
       next
     end
 

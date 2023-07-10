@@ -18,6 +18,8 @@ module Mal
       else
         f
       end
+    when Function
+      "#function"
     when Proc
       "#function"
     when nil

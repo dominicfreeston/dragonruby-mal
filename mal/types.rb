@@ -15,5 +15,10 @@ module Mal
       self.freeze
     end
   end
-  
+
+  class Function
+    attr_accessor :ast, :params, :env, :fn
+  end
+
+
 end
