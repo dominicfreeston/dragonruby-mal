@@ -145,15 +145,14 @@ module Mal
     v = nil
 
     v ||= :nil if a == "nil"
-    v ||= true  if a == "true"
-    v ||= false if a == "false"
+    v ||= :true if a == "true"
+    v ||= :false if a == "false"
     
     v ||= Keyword.new a if a.start_with? ":"
     v ||= parse_str a if a.start_with? "\""
     
     v ||= begin Integer(a) rescue nil end    
     
-
     v ||= a.intern
 
     v
@@ -176,11 +175,24 @@ module Mal
     ok = ok && suffix.length.even?
 
     raise "expected '\"', got EOF" unless ok
-    
-    s.gsub! "\\\"", "\""
-    s.gsub! "\\n", "\n"
-    s.gsub! "\\t", "\t"
-    s.gsub! "\\\\", "\\"
-    s
+
+    r = ""
+    leading = false
+    s.each_char do |c|
+      if c == "\\"
+        r += "\\" if leading
+      elsif !leading
+        r += c
+        leading = true
+      elsif c == "n"
+        r += "\n"
+      elsif c == "t"
+        r += "\t"
+      elsif c == "\""
+        r += "\""
+      end
+      leading = !leading
+    end
+    r
   end
 end

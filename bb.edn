@@ -8,7 +8,7 @@
                      (nth -get-steps (parse-long (first *command-line-args*))) ".rb"))}
   
   repl
-  {:task (shell "./dragonruby mal --eval mal/mal.rb --no-tick")}
+  {:task (shell "rlwrap ./dragonruby mal --eval mal/mal.rb --no-tick")}
   
   generate-step-tests
   {:depends [-get-steps]

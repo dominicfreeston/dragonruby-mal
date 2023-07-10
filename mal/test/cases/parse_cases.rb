@@ -18,7 +18,8 @@ def parse_test_cases step
       cases << [input, (line.delete_prefix ";=>")]
       input = []
 
-    elsif line.start_with? ";/.*"
+    elsif line.start_with? ";/"
+      next if not (line.start_with? ";/.*")
       raise "Invalid file" if input.empty?
 
       error_cases << [input, (line.delete_prefix ";/")]

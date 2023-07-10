@@ -2,9 +2,16 @@ module Mal
   class Env
     attr_accessor :data
     
-    def initialize outer
+    def initialize outer=nil, binds=[], exprs=[]
       @outer = outer
       @data = {}
+      binds.each_with_index do |e, i|
+        if e == :&
+          @data[binds[i+1]] = List.new exprs.drop(i)
+          break
+        end
+        @data[e] = exprs[i]
+      end
     end
 
     def set k, v

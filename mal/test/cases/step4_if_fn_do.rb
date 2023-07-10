@@ -4,14 +4,14 @@ require "mal/types.rb"
 require "mal/env.rb"
 require "mal/core.rb"
 
-require "mal/step0_repl.rb"
+require "mal/step4_if_fn_do.rb"
 
 require "mal/test/cases/parse_cases.rb"
 
 def test_mal_cases args, assert
   repl = Mal::Repl.new
   
-  cases = parse_test_cases "step0_repl"
+  cases = parse_test_cases "step4_if_fn_do"
 
   cases[:success].each do |(input, expected)|
     print "test input: " + input.to_s + "\n"

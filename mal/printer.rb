@@ -18,6 +18,10 @@ module Mal
       else
         f
       end
+    when Proc
+      "#function"
+    when nil
+      "nil"
     else
       f.to_s
     end
