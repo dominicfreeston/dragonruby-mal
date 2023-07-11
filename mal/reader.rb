@@ -39,6 +39,7 @@ module Mal
   
   def self.read_str s
     tokens = (tokenize s)
+    return nil if tokens.size == 0
     (read_form (Reader.new tokens)) 
   end
   
@@ -125,16 +126,14 @@ module Mal
 
     reader.next
     
-    while (reader.peek) &&
-          (s = read_form reader) &&
-          (s != close) do
-      
-      ast << s
-    end
-
-    if s != close
+    while (token = reader.peek) != close
+      if not token
         raise "expected '" + close.to_s + "', got EOF"
+      end
+      ast << read_form(reader)
     end
+    
+    reader.next
     
     ast
   end
@@ -142,20 +141,18 @@ module Mal
   def self.read_atom reader
     a = reader.next
 
-    v = nil
+    return nil if a == "nil"
+    return true if a == "true"
+    return false if a == "false"
+    
+    return Keyword.new a if a.start_with? ":"
+    return parse_str a if a.start_with? "\""
 
-    v ||= :nil if a == "nil"
-    v ||= :true if a == "true"
-    v ||= :false if a == "false"
     
-    v ||= Keyword.new a if a.start_with? ":"
-    v ||= parse_str a if a.start_with? "\""
+    i = begin Integer(a) rescue nil end
+    return i if i
     
-    v ||= begin Integer(a) rescue nil end    
-    
-    v ||= a.intern
-
-    v
+    return  a.intern
   end
 
   def self.parse_str s

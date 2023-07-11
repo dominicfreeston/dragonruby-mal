@@ -1,81 +1,97 @@
 module Mal
   module Namespace
-    @@ns = {
-      :+ => lambda { |*args| args.reduce(:+) },
-      :- => lambda { |*args| args.reduce(:-) },
-      :* => lambda { |*args| args.reduce(:*) },
-      :/ => lambda { |*args| args.reduce(:/) },
+    class Core
+      attr_accessor :ns
       
-      :list => lambda do |*args|
-        List.new args
-      end,
+      def initialize
+        @ns = {}
+        
+        @ns[:+] = lambda { |*args| args.reduce(:+) }
+        @ns[:-] = lambda { |*args| args.reduce(:-) }
+        @ns[:*] = lambda { |*args| args.reduce(:*) }
+        @ns[:/] = lambda { |*args| args.reduce(:/) }
+        
+        @ns[:list] = lambda do |*args|
+          List.new args
+        end
 
-      :list? => lambda do |l|
-        l.is_a? List
-      end,
+        @ns[:list?] = lambda do |l|
+          l.is_a? List
+        end
 
-      :empty? => lambda do |l|
-        l.nil? or l.empty?
-      end,
+        @ns[:empty?] = lambda do |l|
+          l.nil? or l.empty?
+        end
 
-      :count => lambda do |l|
-        l.nil? ? 0 : l.length
-      end,
-      
-      "=".intern => lambda do |a, b|
-        # keywords should only be equal to keywords
-        if a.is_a?(Keyword) || b.is_a?(Keyword)
-          return false unless a.class == b.class
+        @ns[:count] = lambda do |l|
+          l.nil? ? 0 : l.length
         end
         
-        a == b
-      end,
+        @ns["=".intern] = lambda do |a, b|
+          # keywords should only be equal to keywords
+          if a.is_a?(Keyword) || b.is_a?(Keyword)
+            return false unless a.class == b.class
+          end
+          
+          a == b
+        end
 
-      :< => lambda do |a, b|
-        a < b
-      end,
+        @ns[:<] = lambda do |a, b|
+          a < b
+        end
 
-      :<= => lambda do |a, b|
-        a <= b
-      end,
+        @ns[:<=] = lambda do |a, b|
+          a <= b
+        end
 
-      :> => lambda do |a, b|
-        a > b
-      end,
+        @ns[:>] = lambda do |a, b|
+          a > b
+        end
 
-      :>= => lambda do |a, b|
-        a >= b
-      end,
+        @ns[:>=] = lambda do |a, b|
+          a >= b
+        end
 
-      "pr-str".intern => lambda do |*args|
-        args.map do |a|
-          Mal.pr_str(a, true)
-        end.join(" ")
-      end,
+        @ns["pr-str".intern] = lambda do |*args|
+          args.map do |a|
+            Mal.pr_str(a, true)
+          end.join(" ")
+        end
 
-      :str => lambda do |*args|
-        args.map do |a|
-          Mal.pr_str(a, false)
-        end.join("")
-      end,
+        @ns[:str] = lambda do |*args|
+          args.map do |a|
+            Mal.pr_str(a, false)
+          end.join("")
+        end
 
-      :prn => lambda do |*args|
-        print (args.map do |a|
-          Mal.pr_str(a, true)
-        end.join(" "))
-        nil
-      end,
+        @ns[:prn] = lambda do |*args|
+          print (args.map do |a|
+                   Mal.pr_str(a, true)
+                 end.join(" "))
+          nil
+        end
 
-      :println => lambda do |*args|
-        print (args.map do |a|
-          Mal.pr_str(a, false)
-        end.join(" "))
-        nil
-      end,
-    }
+        @ns[:println] = lambda do |*args|
+          print (args.map do |a|
+                   Mal.pr_str(a, false)
+                 end.join(" ")) + "\n"
+          nil
+        end
 
+        @ns["read-string".intern] = lambda do |s|
+          Mal.read_str(s)
+        end
+
+        @ns[:slurp] = lambda do |f|
+          $gtk.read_file f
+        end
+      end
+    end
+
+    @core = Core.new
+    
     def self.core
-      @@ns
+      @core.ns
     end
   end
 end

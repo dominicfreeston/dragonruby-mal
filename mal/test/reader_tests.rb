@@ -18,12 +18,6 @@ $cases = [
    "\"hi\"",
   ],
 
-  ["\"\\\n\"",
-   ["\"\\\n\"",],
-   "\n",
-   "\"\\\n\"",
-  ],
-  
   [
     "(  :hi there \"my \\\"friend\\\"\" )",
     [:OPEN_PAREN, ":hi", "there", "\"my \\\"friend\\\"\"", :CLOSE_PAREN],

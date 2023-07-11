@@ -1,6 +1,8 @@
 def parse_test_cases step
   path = "mal/test/cases/" + step + ".mal"
-  lines = ($gtk.read_file path).split "\n"
+  lines = $gtk.read_file(path)
+            .gsub("../tests", "mal/test/cases")
+            .split("\n")
   cases = []
   error_cases = []
   input = []
