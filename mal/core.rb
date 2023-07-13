@@ -85,6 +85,30 @@ module Mal
         @ns[:slurp] = lambda do |f|
           $gtk.read_file f
         end
+
+        @ns[:atom] = lambda do |v|
+          Atom.new v
+        end
+
+        @ns[:atom?] = lambda do |a|
+          a.is_a? Atom
+        end
+
+        @ns[:deref] = lambda do |a|
+          raise "attempting to deref" unless a.is_a? Atom
+          a.val
+        end
+
+        @ns[:reset!] = lambda do |a, v|
+          a.val = v
+          v
+        end
+
+        @ns[:swap!] = lambda do |a, f, *rest|
+          f = f.is_a?(Function) ? f.fn : f
+          a.val = f[a.val, *rest]
+          a.val
+        end
       end
     end
 

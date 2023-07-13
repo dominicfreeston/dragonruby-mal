@@ -6,6 +6,10 @@
   {:depends [-get-steps]
    :task (shell (str "./dragonruby mal --test mal/test/cases/"
                      (nth -get-steps (parse-long (first *command-line-args*))) ".rb"))}
+
+  run
+  {:requires ([clojure.string :as str])
+   :task (shell (str "./dragonruby mal --eval mal/mal.rb --no-tick --run " (str/join " " *command-line-args*)))}
   
   repl
   {:task (shell "rlwrap ./dragonruby mal --eval mal/mal.rb --no-tick")}

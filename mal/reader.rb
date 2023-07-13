@@ -62,19 +62,32 @@ module Mal
         pos += 1
       elsif c == "\""
         start = pos
-        
-        pos += 1
-        pos += 1 while (pos + 1 < s.size) &&
-                       (s[pos] != "\"" || s[pos - 1] == "\\")
 
-        pos += 1
+        # advance until you find a " not preceded by a \
+        # keeping in mind \\ doesn't count
+        c = 0
+        while pos < s.length
+          pos += 1
+
+          if s[pos] == "\"" && (c % 2) == 0
+            break
+          elsif s[pos] == "\\"
+            c = c + 1
+          else
+            c = 0
+          end
+        end
         
+        pos += 1
+
         tokens << s[start...pos]
       elsif c == ";"
         start = pos
         pos += 1 while (pos < s.size) &&
                        (s[pos] != "\n")
-        tokens << s[start...pos]
+        # tokenizing it just means we have to deal with it later?
+        # and somehow differentiate between it and nil
+        # tokens << s[start...pos]
       else
         start = pos
         pos += 1 while (pos < s.size) &&
@@ -157,9 +170,8 @@ module Mal
 
   def self.parse_str s
     ok = (s.end_with? "\"") && (s.length > 1)
-    
     s = s[1...-1]
-
+    
     suffix = ""
     s.reverse.each_char do |c|
       if c == "\\"

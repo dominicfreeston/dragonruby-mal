@@ -21,4 +21,12 @@ module Mal
   end
 
 
+  class Atom
+    attr_accessor :val
+
+    def initialize v
+      @val = v
+    end
+  end
+  
 end

@@ -5,6 +5,11 @@ module Mal
         Namespace.core.each do |k, v|
           @repl_env.set(k, v)
         end
+
+        @repl_env.set(
+          :"*ARGV*",
+          List.new([])
+        )
         
         @repl_env.set(
           :eval,
@@ -25,6 +30,13 @@ module Mal
         RE = lambda {|str| EVAL(READ(str), @repl_env) }
         RE["(def! not (fn* (a) (if a false true)))"]
         RE["(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \"\nnil)\")))))"]
+    end
+
+    def set_argv argv
+      @repl_env.set(
+        :"*ARGV*",
+        List.new(argv)
+      )
     end
     
     def debug_log i
@@ -141,6 +153,16 @@ end
 
 def run_repl
   repl = Mal::Repl.new
+  
+  if arg_string = $gtk.cli_arguments[:run]
+    # maybe improve this to allow quoting
+    args = arg_string.split(" ")
+    repl.set_argv(args.drop 1)
+    cmd = "(load-file \"" + args[0] + "\")"
+    repl.REP(cmd)
+    return
+  end
+  
   loop do
     print "input> "
     line = gets

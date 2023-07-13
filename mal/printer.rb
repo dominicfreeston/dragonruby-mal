@@ -18,6 +18,8 @@ module Mal
       else
         f
       end
+    when Atom
+      "(atom " + self.pr_str(f.val, r) + ")"
     when Function
       "#function"
     when Proc

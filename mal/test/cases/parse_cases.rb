@@ -9,7 +9,7 @@ def parse_test_cases step
   
   lines.each do |line|
     line = line.trim
-    if line.empty? || line.start_with?(";;")
+    if line.empty? || line.start_with?(";;") || line.start_with?(";>")
       next
     end
 
