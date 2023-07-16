@@ -27,6 +27,23 @@ module Mal
           l.nil? ? 0 : l.length
         end
 
+        @ns[:nth] = lambda do |l, i|
+          raise "Index (" + i + ") out of range" if i < 0 || i >= l.length
+          l[i]
+        end
+
+        @ns[:first] = lambda do |l|
+          if (not l) || l.empty?
+            nil
+          else
+            l[0]
+          end
+        end
+
+        @ns[:rest] = lambda do |l|
+          List.new(l&.drop(1) || [])
+        end
+
         @ns[:cons] = lambda do |c, l|
           List.new [c] + l
         end
@@ -121,6 +138,7 @@ module Mal
           a.val = f[a.val, *rest]
           a.val
         end
+                                           
       end
     end
 

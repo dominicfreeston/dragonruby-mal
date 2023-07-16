@@ -17,7 +17,11 @@ module Mal
   end
 
   class Function
-    attr_accessor :ast, :params, :env, :fn
+    attr_accessor :ast, :params, :env, :fn, :is_macro
+
+    def initialize is_macro=false
+      @is_macro = is_macro
+    end
   end
 
 
