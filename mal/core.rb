@@ -26,6 +26,18 @@ module Mal
         @ns[:count] = lambda do |l|
           l.nil? ? 0 : l.length
         end
+
+        @ns[:cons] = lambda do |c, l|
+          List.new [c] + l
+        end
+
+        @ns[:concat] = lambda do |*ls|
+          List.new (ls && ls.reduce(:+)) || []
+        end
+
+        @ns[:vec] = lambda do |l|
+          if l.is_a? Vector then l else Vector.new l end
+        end
         
         @ns["=".intern] = lambda do |a, b|
           # keywords should only be equal to keywords
