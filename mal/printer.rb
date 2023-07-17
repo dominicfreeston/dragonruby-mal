@@ -2,6 +2,8 @@ module Mal
   def self.pr_str f, print_readably=true
     r = print_readably
     case f
+    when MalException
+      pr_str f.val
     when List
       "(" + f.map { |f| pr_str f, r }.join(" ")  + ")"
     when Vector

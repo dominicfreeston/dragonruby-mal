@@ -138,6 +138,98 @@ module Mal
           a.val = f[a.val, *rest]
           a.val
         end
+
+        @ns[:throw] = lambda do |v|
+          raise MalException.new v
+        end
+
+        @ns[:map] = lambda do |f, l|
+          f = f.fn if f.is_a? Function
+          List.new l.map(&f)
+        end
+
+        @ns[:nil?] = lambda do |v|
+          v.nil?
+        end
+
+        @ns[:true?] = lambda do |v|
+          true == v
+        end
+
+        @ns[:false?] = lambda do |v|
+          false == v
+        end
+
+        @ns[:symbol?] = lambda do |v|
+          v.is_a? Symbol
+        end
+
+        @ns[:keyword?] = lambda do |k|
+          k.is_a? Keyword
+        end
+
+        @ns[:sequential?] = lambda do |s|
+          s.is_a? Array
+        end
+
+        @ns[:vector?] = lambda do |s|
+          s.is_a? Vector
+        end
+
+        @ns[:map?] = lambda do |m|
+          m.is_a? Map
+        end
+
+        @ns[:symbol] = lambda do |s|
+          s.intern
+        end
+
+        @ns[:keyword] = lambda do |s|
+          if s.is_a? Keyword
+            s
+          else
+            Keyword.new ":" + s
+          end
+        end
+
+        @ns[:vector] = lambda do |*args|
+          Vector.new args
+        end
+
+        @ns["hash-map".intern] = lambda do |*args|
+          Map[args.each_slice(2).to_a]
+        end
+
+        @ns[:assoc] = lambda do |m, *args|
+          m.merge Map[args.each_slice(2).to_a]
+        end
+
+        @ns[:dissoc] = lambda do |m, *args|
+          m = m.dup
+          args.each { |k| m.delete k }
+          m
+        end
+
+        @ns[:get] = lambda do |m, k|
+          (m || {})[k]
+        end
+
+        @ns[:contains?] = lambda do |m, k|
+          (m || {}).has_key? k
+        end
+
+        @ns[:keys] = lambda do |m|
+          List.new m.keys
+        end
+
+        @ns[:vals] = lambda do |m|
+          List.new m.values
+        end
+
+        @ns[:apply] = lambda do |f, *args|
+          f = f.fn if f.is_a? Function
+          f[*args[0...-1], *args.last]
+        end
                                            
       end
     end

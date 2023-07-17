@@ -141,7 +141,7 @@ module Mal
     
     while (token = reader.peek) != close
       if not token
-        raise "expected '" + close.to_s + "', got EOF"
+        raise MalException.new "expected '" + close.to_s + "', got EOF"
       end
       ast << read_form(reader)
     end
@@ -183,7 +183,7 @@ module Mal
 
     ok = ok && suffix.length.even?
 
-    raise "expected '\"', got EOF" unless ok
+    raise MalException.new "expected '\"', got EOF" unless ok
 
     r = ""
     leading = false

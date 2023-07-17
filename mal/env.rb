@@ -26,7 +26,7 @@ module Mal
 
     def get k
       env = find k
-      raise "'" + k.to_s + "' not found" if not env
+      raise MalException.new "'" + k.to_s + "' not found" if not env
       env.data[k]
     end
   end

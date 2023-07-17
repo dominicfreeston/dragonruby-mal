@@ -32,5 +32,16 @@ module Mal
       @val = v
     end
   end
-  
+
+  class MalException < Exception
+    attr_accessor :val
+
+    def initialize v
+      @val = v
+    end
+
+    def to_s
+      @val.to_s
+    end
+  end
 end
