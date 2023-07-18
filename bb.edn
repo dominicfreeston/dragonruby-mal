@@ -1,5 +1,9 @@
 {:tasks
- {test
+ 
+ {:requires ([babashka.fs :as fs]
+             [clojure.string :as str])
+  
+  test
   {:task (shell "./dragonruby mal --test mal/test/test.rb")}
 
   test-step
@@ -13,6 +17,23 @@
   
   repl
   {:task (shell "rlwrap ./dragonruby mal --eval mal/mal.rb --no-tick")}
+
+  build
+  {:depends [-get-steps]
+   :task (let [repl-file (nth -get-steps (parse-long (first *command-line-args*)))
+               files ["reader" "printer" "types" "env" "core" repl-file]]
+           (fs/delete-if-exists "lib/mal.rb")
+           (when (not (fs/exists? "lib"))
+             (fs/create-dir "lib"))
+           (spit "lib/mal.rb"
+                 (str/join "\n\n"
+                           (map (fn [f]
+                                  (slurp (format "mal/%s.rb" f)))
+                                files))))}
+
+  install
+  {:depends [-get-steps build]
+   :task (fs/copy "lib/mal.rb" "mygame/app/mal.rb")}
   
   generate-step-tests
   {:depends [-get-steps]
@@ -23,8 +44,7 @@
               :task (println -get-steps)}
   
   -get-steps
-  {:requires ([babashka.fs :as fs])
-   :task (->> (fs/list-dir "mal")
+  {:task (->> (fs/list-dir "mal")
               (map (fn [f]
                      (->> f
                          fs/file-name
