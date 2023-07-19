@@ -5,7 +5,7 @@ module Mal
       
       def initialize
         @ns = {}
-        
+
         @ns[:+] = lambda { |*args| args.reduce(:+) }
         @ns[:-] = lambda { |*args| args.reduce(:-) }
         @ns[:*] = lambda { |*args| args.reduce(:*) }
@@ -230,7 +230,67 @@ module Mal
           f = f.fn if f.is_a? Function
           f[*args[0...-1], *args.last]
         end
-                                           
+
+        @ns[:readline] = lambda do |prompt|
+          print prompt
+          r = gets
+          # chop off trailing \n
+          r && r[0...-1]
+        end
+
+        @ns["time-ms".intern] = lambda do
+          (Time.now.to_f * 1000).to_i
+        end
+        
+        @ns[:meta] = lambda do |v|
+          v.meta
+        end
+        
+        @ns[:fn?] = lambda do |f|
+          f.is_a?(Proc) || f.is_a?(Function) && !f.is_macro
+        end
+
+        @ns[:macro?] = lambda do |f|
+          f.is_a?(Function) && f.is_macro
+        end
+        
+        @ns[:string?] = lambda do |s|
+          s.is_a?(String) && !s.is_a?(Keyword)
+        end
+        
+        @ns[:number?] = lambda do |n|
+          n.is_a? Numeric
+        end
+        
+        @ns[:seq] = lambda do |s|
+          return nil if s.nil? || s.size == 0
+          
+          case s             
+          when List
+            s
+          when Vector
+            List.new s
+          when String
+            List.new s.split("")
+          end
+        end
+        
+        @ns[:conj] = lambda do |s, *args|
+          s = s.clone
+          case s
+          when List
+            args.each { |v| s.unshift v }
+          when Vector
+            args.each { |v| s.push v }
+          end
+          s
+        end
+      
+        @ns["with-meta".intern] = lambda do |v, m|
+          v = v.clone
+          v.meta = m
+          v
+        end
       end
     end
 

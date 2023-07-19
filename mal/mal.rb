@@ -4,7 +4,7 @@ require "mal/types.rb"
 require "mal/env.rb"
 require "mal/core.rb"
 
-require "mal/step9_quote.rb"
+require "mal/stepA_mal.rb"
 
 # workaround for DR's async requires
 require "run_repl.rb"
