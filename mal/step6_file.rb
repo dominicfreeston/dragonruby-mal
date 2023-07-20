@@ -3,23 +3,23 @@ module Mal
     def initialize
         @repl_env = Env.new
         Namespace.core.each do |k, v|
-          @repl_env.set(k, v)
+          @repl_env.set(MalSymbol.new(k), v)
         end
 
         @repl_env.set(
-          :"*ARGV*",
+          MalSymbol.new(:"*ARGV*"),
           List.new([])
         )
         
         @repl_env.set(
-          :eval,
+          MalSymbol.new(:eval),
           lambda do |ast| 
             EVAL ast, @repl_env
           end
         )
 
         @repl_env.set(
-          :"print-env",
+          MalSymbol.new(:"print-env"),
           lambda do
             print(@repl_env.data.keys.map do |s|
                     s.to_s
@@ -34,7 +34,7 @@ module Mal
 
     def set_argv argv
       @repl_env.set(
-        :"*ARGV*",
+        MalSymbol.new(:"*ARGV*"),
         List.new(argv)
       )
     end
@@ -45,7 +45,7 @@ module Mal
 
     def eval_ast ast, env
       case ast
-      when Symbol
+      when MalSymbol
         env.get ast
       when List
         List.new ast.map { |a| (EVAL a, env) }
@@ -76,12 +76,14 @@ module Mal
         if ast.empty?
           return ast
         end
+
+        sym = ast[0].sym if ast[0].is_a? MalSymbol
         
-        if ast[0] == :def!
+        if sym == :def!
           return env.set(ast[1], EVAL(ast[2], env))
         end
 
-        if ast[0] == :"let*"
+        if sym == :"let*"
           let_env = Env.new env
           bindings = ast[1]
           bindings.each_slice(2) do |(k, v)|
@@ -92,13 +94,13 @@ module Mal
           next
         end
 
-        if ast[0] == :do
+        if sym == :do
           eval_ast(List.new(ast[1..-2]), env)
           ast = ast.last
           next
         end
 
-        if ast[0] == :if
+        if sym == :if
           if EVAL(ast[1], env)
             ast = ast[2]
           else
@@ -108,7 +110,7 @@ module Mal
           next
         end
 
-        if ast[0] == :"fn*"
+        if sym == :"fn*"
           binds = ast[1]
           f = Function.new
           f.ast = ast[2]

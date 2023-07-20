@@ -6,28 +6,28 @@ module Mal
       @outer = outer
       @data = {}
       binds.each_with_index do |e, i|
-        if e == :&
-          @data[binds[i+1]] = List.new exprs.drop(i)
+        if e.sym == :&
+          @data[binds[i+1].sym] = List.new exprs.drop(i)
           break
-        end
-        @data[e] = exprs[i]
+        end     
+        @data[e.sym] = exprs[i]
       end
     end
 
     def set k, v
-      @data[k] = v
+      @data[k.sym] = v
     end
 
     def find k
-      return self if @data.key? k
+      return self if @data.key? k.sym
       return @outer.find(k) if @outer
       return nil
     end
 
     def get k
       env = find k
-      raise MalException.new "'" + k.to_s + "' not found" if not env
-      env.data[k]
+      raise MalException.new "symbol '" + k.sym.to_s + "' not found" if not env
+      env.data[k.sym]
     end
   end
 end

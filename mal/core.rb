@@ -161,7 +161,7 @@ module Mal
         end
 
         @ns[:symbol?] = lambda do |v|
-          v.is_a? Symbol
+          v.is_a? MalSymbol
         end
 
         @ns[:keyword?] = lambda do |k|
@@ -181,14 +181,14 @@ module Mal
         end
 
         @ns[:symbol] = lambda do |s|
-          s.intern
+          MalSymbol.new s.intern
         end
 
         @ns[:keyword] = lambda do |s|
           if s.is_a? Keyword
             s
           else
-            Keyword.new ":" + s
+            s.intern
           end
         end
 

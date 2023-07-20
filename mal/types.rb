@@ -31,13 +31,22 @@ module Mal
     include WithMeta
   end
 
-  class Keyword < String
-    def initialize s
-      super s
-      self.freeze
+  Keyword = Symbol
+
+  class MalSymbol
+    def sym
+      @sym
+    end
+    
+    def initialize sym
+      @sym = sym
+    end
+
+    def == other
+      other.is_a?(MalSymbol) && self.sym == other.sym
     end
   end
-
+  
   class Function
     include WithMeta
     

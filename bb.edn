@@ -33,7 +33,7 @@
 
   install
   {:depends [-get-steps build]
-   :task (fs/copy "lib/mal.rb" "mygame/app/mal.rb")}
+   :task (fs/copy "lib/mal.rb" "mygame/app/mal.rb" {:replace-existing true})}
   
   generate-step-tests
   {:depends [-get-steps]

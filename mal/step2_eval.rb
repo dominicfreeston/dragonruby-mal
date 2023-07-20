@@ -14,9 +14,9 @@ module Mal
 
     def eval_ast ast, env
       case ast
-      when Symbol
-        raise "'" + ast.to_s + "' not found" if not env.key? ast
-        env[ast]
+      when MalSymbol
+        raise "'" + ast.sym.to_s + "' not found" if not env.key? ast.sym
+        env[ast.sym]
       when List
         List.new ast.map { |a| (EVAL a, env) }
       when Vector

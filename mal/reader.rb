@@ -106,23 +106,23 @@ module Mal
     case reader.peek
     when :QUOTE
       reader.next
-      List.new [:quote, (read_form reader)]
+      List.new [MalSymbol.new(:quote), (read_form reader)]
     when :BACKTICK
       reader.next
-      List.new [:quasiquote, (read_form reader)]
+      List.new [MalSymbol.new(:quasiquote), (read_form reader)]
     when :TILDE
       reader.next
-      List.new [:unquote, (read_form reader)]
+      List.new [MalSymbol.new(:unquote), (read_form reader)]
     when :TAT
       reader.next
-      List.new [:"splice-unquote", (read_form reader)]
+      List.new [MalSymbol.new(:"splice-unquote"), (read_form reader)]
     when :CARET
       reader.next
       meta = read_form reader
-      List.new [:"with-meta", (read_form reader), meta]
+      List.new [MalSymbol.new(:"with-meta"), (read_form reader), meta]
     when :AT
       reader.next
-      List.new [:deref, (read_form reader)]
+      List.new [MalSymbol.new(:deref), (read_form reader)]
     when :OPEN_PAREN
       read_list reader, List, :CLOSE_PAREN
     when :OPEN_SQUARE
@@ -158,14 +158,14 @@ module Mal
     return true if a == "true"
     return false if a == "false"
     
-    return Keyword.new a if a.start_with? ":"
+    return a.delete_prefix(":").intern if a.start_with? ":"
     return parse_str a if a.start_with? "\""
 
     
     i = begin Integer(a) rescue nil end
     return i if i
     
-    return  a.intern
+    return MalSymbol.new(a.intern)
   end
 
   def self.parse_str s

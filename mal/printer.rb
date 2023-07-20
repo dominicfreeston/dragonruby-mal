@@ -12,8 +12,10 @@ module Mal
       ret = []
       f.each{ |k,v| ret.push (pr_str k, r), (pr_str v, r) }
       "{" + ret.join(" ") + "}"
+    when MalSymbol
+      f.sym.to_s
     when Keyword
-      f
+      ":" + f.to_s
     when String
       if r
         f.inspect

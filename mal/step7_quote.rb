@@ -3,23 +3,23 @@ module Mal
     def initialize
         @repl_env = Env.new
         Namespace.core.each do |k, v|
-          @repl_env.set(k, v)
+          @repl_env.set(MalSymbol.new(k), v)
         end
 
         @repl_env.set(
-          :"*ARGV*",
+          MalSymbol.new(:"*ARGV*"),
           List.new([])
         )
         
         @repl_env.set(
-          :eval,
+          MalSymbol.new(:eval),
           lambda do |ast| 
             EVAL ast, @repl_env
           end
         )
 
         @repl_env.set(
-          :"print-env",
+          MalSymbol.new(:"print-env"),
           lambda do
             print(@repl_env.data.keys.map do |s|
                     s.to_s
@@ -34,7 +34,7 @@ module Mal
 
     def set_argv argv
       @repl_env.set(
-        :"*ARGV*",
+        MalSymbol.new(:"*ARGV*"),
         List.new(argv)
       )
     end
@@ -46,10 +46,12 @@ module Mal
     def process_quasiquote ast
       res = List.new []
       ast.reverse_each do |e|
-        if e.is_a?(List) && e[0] == :"splice-unquote"
-          res = List.new [:concat, e[1], res]
+        if e.is_a?(List) &&
+           (s = e[0]).is_a?(MalSymbol) &&
+           s.sym == :"splice-unquote"
+          res = List.new [MalSymbol.new(:concat), e[1], res]
         else
-          res = List.new [:cons, quasiquote(e), res]
+          res = List.new [MalSymbol.new(:cons), quasiquote(e), res]
         end
       end
       res
@@ -58,17 +60,17 @@ module Mal
     def quasiquote ast
       case ast
       when List
-        if ast[0] == :unquote
+        if (s = ast[0]).is_a?(MalSymbol) && s.sym == :unquote
           ast[1]
         else
           process_quasiquote(ast)
         end
       when Vector
-        List.new [:vec, process_quasiquote(ast)]
+        List.new [MalSymbol.new(:vec), process_quasiquote(ast)]
       when Map
-        List.new [:quote, ast]
-      when Symbol
-        List.new [:quote, ast]
+        List.new [MalSymbol.new(:quote), ast]
+      when MalSymbol
+        List.new [MalSymbol.new(:quote), ast]
       else
         ast
       end
@@ -76,7 +78,7 @@ module Mal
     
     def eval_ast ast, env
       case ast
-      when Symbol
+      when MalSymbol
         env.get ast
       when List
         List.new ast.map { |a| (EVAL a, env) }
@@ -108,24 +110,26 @@ module Mal
           return ast
         end
 
-        if ast[0] == :quote
+        sym = ast[0].sym if ast[0].is_a? MalSymbol
+        
+        if sym == :quote
           return ast[1]
         end
 
-        if ast[0] == :quasiquote
+        if sym == :quasiquote
           ast = quasiquote(ast[1])
           next
         end
 
-        if ast[0] == :quasiquoteexpand
+        if sym == :quasiquoteexpand
           return ast = quasiquote(ast[1])
         end
         
-        if ast[0] == :def!
+        if sym == :def!
           return env.set(ast[1], EVAL(ast[2], env))
         end
 
-        if ast[0] == :"let*"
+        if sym == :"let*"
           let_env = Env.new env
           bindings = ast[1]
           bindings.each_slice(2) do |(k, v)|
@@ -136,13 +140,13 @@ module Mal
           next
         end
 
-        if ast[0] == :do
+        if sym == :do
           eval_ast(List.new(ast[1..-2]), env)
           ast = ast.last
           next
         end
 
-        if ast[0] == :if
+        if sym == :if
           if EVAL(ast[1], env)
             ast = ast[2]
           else
@@ -152,7 +156,7 @@ module Mal
           next
         end
 
-        if ast[0] == :"fn*"
+        if sym == :"fn*"
           binds = ast[1]
           f = Function.new
           f.ast = ast[2]
