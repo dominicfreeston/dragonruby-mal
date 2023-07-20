@@ -20,7 +20,7 @@
 
   build
   {:depends [-get-steps]
-   :task (let [repl-file (nth -get-steps (parse-long (first *command-line-args*)))
+   :task (let [repl-file (nth -get-steps 10)
                files ["reader" "printer" "types" "env" "core" repl-file]]
            (fs/delete-if-exists "lib/mal.rb")
            (when (not (fs/exists? "lib"))

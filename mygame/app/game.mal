@@ -1,0 +1,29 @@
+(def! graphics
+  (atom
+    [
+     {:x 0   :y 10 :w 100 :h 100 :primitive_marker :solid}
+     {:x 300 :y 10 :w 100 :h 200 :primitive_marker :border}
+     {:x 600 :y 10 :w 100 :h 300 :primitive_marker :solid}
+     {:x 900 :y 10 :w 100 :h 400 :primitive_marker :border}
+     ]))
+
+(def! update (fn* (m k f & args)
+  (assoc m k (apply f (get m k) args))))
+
+(def! partial (fn* (f & args)
+  (fn* (& more)
+    (apply f (concat args more)))))
+
+(def! move-right-by (fn* (dist m)
+  (update m :x (partial + dist))))
+
+(def! tick (fn* ()
+  (swap! graphics (fn* (s)
+    (map
+      (fn* [m]
+        (let* (m (move-right-by 10 m))
+	  (if (< 1280 (get m :x))
+	    (assoc m :x -100)
+	    m)))
+     s)))))
+    
